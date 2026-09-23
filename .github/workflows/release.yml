@@ -30,6 +30,8 @@ jobs:
           VERSION="${A:-0}.${B:-0}.${C:-0}.${D:-0}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          # actions/checkout replaces the annotated tag with a lightweight one; refetch it to get the tag message.
+          git fetch --force origin "refs/tags/$TAG:refs/tags/$TAG"
           CHANGELOG="$(git tag -l --format='%(contents)' "$TAG" | sed '/^-----BEGIN PGP/,$d')"
           [ -z "$CHANGELOG" ] && CHANGELOG="Release $TAG"
           {
