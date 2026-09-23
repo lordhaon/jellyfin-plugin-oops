@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>OOPS</title>
+</head>
+<body>
+    <div id="OopsConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+        <div data-role="content">
+            <div class="content-primary">
+                <h2 class="sectionTitle">OOPS – Out Of Place Sorter</h2>
+                <p>Oops, wrong library? Open the <b>⋮</b> menu on any movie, show, season, episode, album or book and pick
+                    <b>Transfer media</b>. Select several items first to move them all at once. Only administrators see the option.</p>
+
+                <form id="OopsConfigForm">
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="RestoreWatchState" type="checkbox" is="emby-checkbox" />
+                            <span>Keep watch history</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">Copies watched, resume position, favorites and ratings for every user onto the moved items.</div>
+                    </div>
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="RemoveEmptySourceFolders" type="checkbox" is="emby-checkbox" />
+                            <span>Remove empty folders left behind</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">Only folders with nothing left in them are deleted. Library root folders are never touched.</div>
+                    </div>
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="verticalSection" style="margin-top:2em;">
+                    <h3 class="sectionTitle">Recent transfers</h3>
+                    <div id="OopsJobs" class="fieldDescription">Loading…</div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            (function () {
+                var pluginId = '25a1e93c-7b91-4bd2-b2ab-dea57e067f04';
+                var page = document.querySelector('#OopsConfigPage');
+
+                function esc(s) {
+                    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                    });
+                }
+
+                function loadJobs() {
+                    ApiClient.getJSON(ApiClient.getUrl('OOPS/Jobs')).then(function (jobs) {
+                        var el = page.querySelector('#OopsJobs');
+                        if (!jobs || !jobs.length) {
+                            el.innerHTML = 'No transfers since Jellyfin last started.';
+                            return;
+                        }
+                        el.innerHTML = jobs.map(function (j) {
+                            var rows = (j.items || []).map(function (i) {
+                                return '<li>' + esc(i.status) + ': ' + esc(i.name) + (i.message ? ' – ' + esc(i.message) : '') + '</li>';
+                            }).join('');
+                            return '<div style="margin-bottom:1em;"><b>' + esc(new Date(j.startedUtc).toLocaleString()) + '</b> → '
+                                + esc(j.targetLibraryName) + ' (' + esc(j.state) + ')<ul style="margin:.3em 0;">' + rows + '</ul></div>';
+                        }).join('');
+                    }).catch(function () {
+                        page.querySelector('#OopsJobs').innerHTML = 'Couldn\'t load transfer history.';
+                    });
+                }
+
+                page.addEventListener('pageshow', function () {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                        page.querySelector('#RestoreWatchState').checked = config.RestoreWatchState;
+                        page.querySelector('#RemoveEmptySourceFolders').checked = config.RemoveEmptySourceFolders;
+                        Dashboard.hideLoadingMsg();
+                    });
+                    loadJobs();
+                });
+
+                page.querySelector('#OopsConfigForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                        config.RestoreWatchState = page.querySelector('#RestoreWatchState').checked;
+                        config.RemoveEmptySourceFolders = page.querySelector('#RemoveEmptySourceFolders').checked;
+                        ApiClient.updatePluginConfiguration(pluginId, config).then(function (result) {
+                            Dashboard.processPluginConfigurationUpdateResult(result);
+                        });
+                    });
+                    return false;
+                });
+            })();
+        </script>
+    </div>
+</body>
+</html>
