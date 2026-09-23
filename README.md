@@ -17,7 +17,7 @@
 
 1. In Jellyfin, go to **Dashboard → Plugins → Repositories** and add both:
    - File Transformation: `https://www.iamparadox.dev/jellyfin/plugins/manifest.json`
-   - OOPS: `https://raw.githubusercontent.com/<your-github-username>/jellyfin-plugin-oops/main/manifest.json`
+   - OOPS: `https://raw.githubusercontent.com/lordhaon/jellyfin-plugin-oops/main/manifest.json`
 2. From **Catalog**, install **File Transformation** and **OOPS - Out Of Place Sorter**.
 3. Restart Jellyfin, then hard-refresh the browser (Ctrl+F5) so the updated page loads.
 
