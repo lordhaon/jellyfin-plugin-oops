@@ -4,9 +4,18 @@
     "name": "OOPS - Out Of Place Sorter",
     "overview": "Oops, wrong library? Move media to another library from the item menu.",
     "description": "Adds a 'Transfer media' option to the item menu and multi-select menu for administrators. Moves the files on disk to another library of the same type, rescans both libraries, and keeps everyone's watch history. Requires the File Transformation plugin.",
-    "owner": "your-github-username",
+    "owner": "lordhaon",
     "category": "General",
     "imageUrl": "",
-    "versions": []
+    "versions": [
+      {
+        "version": "1.0.0.0",
+        "changelog": "README: point the plugin repository URL at lordhaon/jellyfin-plugin-oops\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>",
+        "targetAbi": "12.0.0.0",
+        "sourceUrl": "https://github.com/lordhaon/jellyfin-plugin-oops/releases/download/v1.0.0/oops_1.0.0.0.zip",
+        "checksum": "7cf7fe8f13d24fa615eebf0bf82af1db",
+        "timestamp": "2026-09-23T23:53:19Z"
+      }
+    ]
   }
 ]
