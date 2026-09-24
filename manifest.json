@@ -3,7 +3,7 @@
     "guid": "25a1e93c-7b91-4bd2-b2ab-dea57e067f04",
     "name": "OOPS - Out Of Place Sorter",
     "overview": "Oops, wrong library? Move media to another library from the item menu.",
-    "description": "Adds a 'Transfer media' option to the item menu and multi-select menu for administrators. Moves the files on disk to another library of the same type, rescans both libraries, and keeps everyone's watch history. Requires the File Transformation plugin.",
+    "description": "Adds a 'Transfer media' option to the item menu and multi-select menu for administrators. Moves the files on disk to another library of the same type, rescans both libraries, and keeps everyone's watch history.",
     "owner": "lordhaon",
     "category": "General",
     "imageUrl": "",

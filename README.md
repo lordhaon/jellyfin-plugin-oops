@@ -10,15 +10,13 @@
 ## Requirements
 
 - Jellyfin **12.x**
-- The [File Transformation](https://github.com/IAmParadox27/jellyfin-plugin-file-transformation) plugin, which OOPS uses to add its menu option to the web UI
 - Jellyfin must have **write access** to every library you move between. In Docker, mount those folders **read-write**, and mount them in the same container.
 
 ## Install
 
-1. In Jellyfin, go to **Dashboard → Plugins → Repositories** and add both:
-   - File Transformation: `https://www.iamparadox.dev/jellyfin/plugins/manifest.json`
-   - OOPS: `https://raw.githubusercontent.com/lordhaon/jellyfin-plugin-oops/main/manifest.json`
-2. From **Catalog**, install **File Transformation** and **OOPS - Out Of Place Sorter**.
+1. In Jellyfin, go to **Dashboard → Plugins → Repositories** and add:
+   `https://raw.githubusercontent.com/lordhaon/jellyfin-plugin-oops/main/manifest.json`
+2. From **Catalog**, install **OOPS - Out Of Place Sorter**. No other plugins are needed.
 3. Restart Jellyfin, then hard-refresh the browser (Ctrl+F5) so the updated page loads.
 
 ## How moves work
