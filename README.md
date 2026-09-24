@@ -49,23 +49,6 @@ The same page lists recent transfers and their results. The list is kept until J
 - Moving the last season of a show leaves the show's folder behind if it still contains artwork or `tvshow.nfo`.
 - The menu option depends on Jellyfin's web UI markup. A major Jellyfin web update may need a small script fix.
 
-## Publishing (for the repo owner)
-
-1. Create a GitHub repo named `jellyfin-plugin-oops` and push this folder to the `main` branch.
-2. In `manifest.json`, replace `your-github-username` with your GitHub username. The release workflow also fills it in automatically.
-3. Tag a release:
-   ```bash
-   git tag -a v1.0.0 -m "First release"
-   git push origin v1.0.0
-   ```
-4. The **Release** action builds the DLL, attaches `oops_1.0.0.0.zip` to a GitHub release, and adds the version to `manifest.json` on `main`. Jellyfin picks up new versions from there.
-
-To build locally: `dotnet build src/Jellyfin.Plugin.Oops/Jellyfin.Plugin.Oops.csproj -c Release`. This needs the .NET 10 SDK. To install without a repository, copy `Jellyfin.Plugin.Oops.dll` into `<jellyfin data>/plugins/OOPS/` and restart Jellyfin.
-
-### When Jellyfin moves to a new major version
-
-Update `JellyfinVersion` and `TargetFramework` in the `.csproj`, and `TARGET_ABI` in `scripts/update_manifest.py`, then tag a new release.
-
 ## API (admin only)
 
 | Method | Path | Purpose |
