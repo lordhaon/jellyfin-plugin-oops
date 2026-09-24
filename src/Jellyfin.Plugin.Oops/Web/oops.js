@@ -210,6 +210,9 @@
         + '.oops-lib:hover{background:rgba(255,255,255,.12);}'
         + '.oops-lib input{accent-color:#00a4dc;width:18px;height:18px;margin:0;}'
         + '.oops-lib small{display:block;opacity:.6;font-size:.8em;word-break:break-all;}'
+        + '.oops-folder{display:flex;align-items:center;gap:10px;margin:6px 0 4px;}'
+        + '.oops-folder[hidden]{display:none;}'
+        + '.oops-folder select{flex:1;min-width:0;background:#2b2b2b;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:7px 8px;font-size:.9em;}'
         + '.oops-note{font-size:.85em;background:rgba(255,170,0,.12);border-left:3px solid #ffaa00;padding:8px 10px;margin:10px 0;border-radius:4px;}'
         + '.oops-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;}'
         + '.oops-btn{border:0;border-radius:6px;padding:9px 16px;font-size:.95em;cursor:pointer;background:rgba(255,255,255,.1);color:#fff;}'
@@ -269,10 +272,14 @@
             + '<div>Move to:</div><div style="margin-top:8px;">';
 
         targets.libraries.forEach(function (lib, idx) {
+            var folders = lib.folders && lib.folders.length ? lib.folders : [lib.folder];
+            var hint = folders.length > 1 ? folders.length + ' folders' : folders[0];
             html += '<label class="oops-lib"><input type="radio" name="oops-target" value="' + esc(lib.id) + '"' + (idx === 0 ? ' checked' : '') + '>'
-                + '<span>' + esc(lib.name) + '<small>' + esc(lib.folder) + '</small></span></label>';
+                + '<span>' + esc(lib.name) + '<small>' + esc(hint) + '</small></span></label>';
         });
         html += '</div>';
+        html += '<div class="oops-folder" data-el="folder-row" hidden><label for="oops-folder">Folder:</label>'
+            + '<select id="oops-folder" data-el="folder"></select></div>';
 
         if (blocked.length) {
             html += '<div class="oops-note"><b>These will be skipped:</b><br>' + blocked.map(function (b) {
@@ -284,6 +291,26 @@
             + '<button class="oops-btn primary" data-act="go">Transfer</button></div>';
         dlg.innerHTML = html;
 
+        var folderRow = dlg.querySelector('[data-el="folder-row"]');
+        var folderSelect = dlg.querySelector('[data-el="folder"]');
+        function libById(id) {
+            return targets.libraries.filter(function (l) { return l.id === id; })[0];
+        }
+        // Only libraries with several folders get a choice; "Automatic" keeps shows/artists with their existing folder.
+        function updateFolders() {
+            var checked = dlg.querySelector('input[name="oops-target"]:checked');
+            var lib = checked && libById(checked.value);
+            var folders = lib && lib.folders ? lib.folders : [];
+            folderRow.hidden = folders.length < 2;
+            folderSelect.innerHTML = '<option value="">Automatic</option>' + folders.map(function (f) {
+                return '<option value="' + esc(f) + '">' + esc(f) + '</option>';
+            }).join('');
+        }
+        dlg.querySelectorAll('input[name="oops-target"]').forEach(function (r) {
+            r.addEventListener('change', updateFolders);
+        });
+        updateFolders();
+
         dlg.querySelector('[data-act="cancel"]').addEventListener('click', close);
         dlg.querySelector('[data-act="go"]').addEventListener('click', function () {
             var checked = dlg.querySelector('input[name="oops-target"]:checked');
@@ -291,11 +318,12 @@
                 return;
             }
             running = true;
-            var libName = targets.libraries.filter(function (l) { return l.id === checked.value; })[0].name;
+            var libName = libById(checked.value).name;
+            var folder = folderRow.hidden ? null : (folderSelect.value || null);
             var moveIds = movable.map(function (i) { return i.id; });
             showProgress(dlg, libName, moveIds.length);
 
-            postJson('OOPS/Transfer', { itemIds: moveIds, targetLibraryId: checked.value }).then(function (res) {
+            postJson('OOPS/Transfer', { itemIds: moveIds, targetLibraryId: checked.value, targetFolder: folder }).then(function (res) {
                 poll(dlg, res.jobId, function () {
                     running = false;
                     finish(dlg, close, ids);

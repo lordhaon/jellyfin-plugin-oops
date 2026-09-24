@@ -32,7 +32,7 @@
 - **Nothing is overwritten.** If a file already exists at the destination, that item is skipped, and nothing of it is moved.
 - If a move fails partway through, the files that were already moved are put back.
 - Moves across different drives work, but they copy the data and can take a while. Progress shows in the dialog.
-- If the target library has several folders, OOPS uses the one that already contains the same series or artist folder. Otherwise it uses the first folder.
+- If the target library has several folders, the dialog shows a **Folder** picker. **Automatic** uses the folder that already contains the same series or artist, otherwise the library's first folder.
 - After moving, OOPS scans the source and target libraries. It then copies each user's watched status, resume position, play count, favorite and rating onto the new items.
 
 ### Settings (Dashboard → Plugins → OOPS)

@@ -14,6 +14,12 @@ public sealed class TransferRequest
 
     [JsonPropertyName("targetLibraryId")]
     public Guid TargetLibraryId { get; set; }
+
+    /// <summary>
+    /// Gets or sets one of the target library's folders. Null lets OOPS choose.
+    /// </summary>
+    [JsonPropertyName("targetFolder")]
+    public string? TargetFolder { get; set; }
 }
 
 /// <summary>
@@ -77,4 +83,7 @@ public sealed class TargetLibraryInfo
 
     [JsonPropertyName("folder")]
     public string Folder { get; init; } = string.Empty;
+
+    [JsonPropertyName("folders")]
+    public List<string> Folders { get; init; } = new();
 }

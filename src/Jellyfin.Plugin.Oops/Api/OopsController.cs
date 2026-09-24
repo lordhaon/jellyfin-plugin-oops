@@ -64,7 +64,7 @@ public class OopsController : ControllerBase
 
         try
         {
-            var jobId = _transferService.StartTransfer(request.ItemIds, request.TargetLibraryId);
+            var jobId = _transferService.StartTransfer(request.ItemIds, request.TargetLibraryId, request.TargetFolder);
             return new TransferStartedResponse { JobId = jobId };
         }
         catch (ArgumentException ex)

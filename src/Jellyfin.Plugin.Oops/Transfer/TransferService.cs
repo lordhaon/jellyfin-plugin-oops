@@ -101,7 +101,8 @@ public sealed class TransferService
                 Id = l.Id,
                 Name = l.Name,
                 CollectionType = l.CollectionType?.ToString(),
-                Folder = l.Locations[0]
+                Folder = l.Locations[0],
+                Folders = l.Locations.ToList()
             })
             .OrderBy(l => l.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
@@ -117,10 +118,21 @@ public sealed class TransferService
     /// <summary>
     /// Queues a transfer and returns immediately; poll <see cref="GetJob"/> for progress.
     /// </summary>
-    public Guid StartTransfer(IReadOnlyList<Guid> itemIds, Guid targetLibraryId)
+    public Guid StartTransfer(IReadOnlyList<Guid> itemIds, Guid targetLibraryId, string? targetFolder = null)
     {
         var target = _planner.GetLibraries().FirstOrDefault(l => l.Id == targetLibraryId)
             ?? throw new ArgumentException("Target library not found.", nameof(targetLibraryId));
+
+        // Only ever accept one of the library's own folders, never an arbitrary path.
+        if (!string.IsNullOrWhiteSpace(targetFolder))
+        {
+            targetFolder = target.Locations.FirstOrDefault(l => PathHelper.SamePath(l, targetFolder))
+                ?? throw new ArgumentException($"'{targetFolder}' isn't one of {target.Name}'s folders.", nameof(targetFolder));
+        }
+        else
+        {
+            targetFolder = null;
+        }
 
         var job = new TransferJob { TargetLibraryName = target.Name };
         job.SetTotal(itemIds.Distinct().Count());
@@ -128,7 +140,7 @@ public sealed class TransferService
         TrimJobs();
 
         var ids = itemIds.Distinct().ToList();
-        _ = Task.Run(() => RunAsync(job, ids, targetLibraryId));
+        _ = Task.Run(() => RunAsync(job, ids, targetLibraryId, targetFolder));
         return job.Id;
     }
 
@@ -150,7 +162,7 @@ public sealed class TransferService
         }
     }
 
-    private async Task RunAsync(TransferJob job, List<Guid> itemIds, Guid targetLibraryId)
+    private async Task RunAsync(TransferJob job, List<Guid> itemIds, Guid targetLibraryId, string? targetFolder)
     {
         await _gate.WaitAsync().ConfigureAwait(false);
         try
@@ -220,7 +232,7 @@ public sealed class TransferService
             var snapshots = new List<UserDataSnapshot>();
             foreach (var unit in units)
             {
-                var targetRoot = ChooseTargetRoot(target, unit.RelativePath);
+                var targetRoot = targetFolder ?? ChooseTargetRoot(target, unit.RelativePath);
                 var destPath = Path.Combine(targetRoot, unit.RelativePath);
                 try
                 {
